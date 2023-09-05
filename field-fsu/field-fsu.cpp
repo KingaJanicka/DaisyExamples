@@ -73,13 +73,22 @@ void Controls()
     // phaser.SetFeedback(hw.knob[5].Process());
 
     /// Add pages to the knobs;
+    
+  switch (page){
+    case 0:
+    svfCutoff = hw.knob[0].Process();
+    break;
 
-  
+    case 1:
+    wavefolderGain = hw.knob[0].Process();
+    break;
+  }
 
 
     effectOn ^= hw.sw[0].RisingEdge();
 }
 
+//handle paging
 void handleButton(){
      for (size_t i = 0; i < 16; i++){
             if(hw.KeyboardRisingEdge(i)){
@@ -178,14 +187,20 @@ int main(void)
         hw.display.SetCursor(0, 0);
         hw.display.WriteString(cstr, Font_7x10, true);
         
+        
+        sprintf(cstr, "Freq: %d", (int)(svfCutoff * 101));
+        hw.display.SetCursor(0, 30);
+        hw.display.WriteString(cstr, Font_7x10, true);
+
+        //Handle Menu Pages draw
        switch (page){
         case 0 :
-        sprintf(cstr, "Freq: %d", svfCutoff);
+        sprintf(cstr, "Freq: %d", (int)(svfCutoff * 101));
         hw.display.SetCursor(0, 10);
         hw.display.WriteString(cstr, Font_7x10, true);
         break;
         case 1:
-        sprintf(cstr, "Fld: %d", wavefolderGain);
+        sprintf(cstr, "Fld: %d", (int)(wavefolderGain * 101));
         hw.display.SetCursor(0, 20);
         hw.display.WriteString(cstr, Font_7x10, true);
         break;
