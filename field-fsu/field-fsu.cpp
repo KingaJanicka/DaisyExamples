@@ -21,6 +21,8 @@ float svfCutoff;
 float svfLP;
 float svfHP;
 
+float nlFiltOut;
+
 float wavefolderGain;
 float wavefolderOffset;
 
@@ -73,7 +75,6 @@ void Controls()
     // phaser.SetFeedback(hw.knob[5].Process());
 
     /// Add pages to the knobs;
-    
   switch (page){
     case 0:
     svfCutoff = hw.knob[0].Process();
@@ -133,6 +134,10 @@ void AudioCallback(AudioHandle::InputBuffer  in,
 			// pha = phaser.Process(in[0][i]) * wet + in[0][i] * (1.f - wet);
            
             svf.Process(in[0][i]);
+            svfLP = svf.Low();
+            svfHP = svf.High();
+
+            nfilt.ProcessBlock(&svfHP, &nlFiltOut, hw.AudioSampleRate());
 
 			overdriveOut = overdrive.Process(wavefolder.Process(svf.High()));
         
@@ -154,6 +159,9 @@ int main(void)
     svf.Init(sample_rate);
     filFreq = 0.2f;
     filRes = 0.0f;
+
+    //NlFilt
+    nfilt.Init();
 
     // Fold init
     fold.Init();
