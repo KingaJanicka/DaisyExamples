@@ -7,7 +7,8 @@ using namespace daisysp;
 // Declare classes and variables here
 
 DaisyField hw;
-Soap        soap;
+Svf         svf;
+NlFilt      nfilt;
 Fold        fold;
 Wavefolder  wavefolder;
 Overdrive   overdrive;
@@ -16,24 +17,26 @@ DcBlock     dcblock;
 bool  effectOn;
 float wet;
 
-float bandBase;
-float bandWidth;
+float svfCutoff;
+float svfLP;
+float svfHP;
 
 float wavefolderGain;
 float wavefolderOffset;
 
+float overdriveOut;
 float overdriveDrive;
 
 float filFreq;
 float filRes;
 
-float bandSplit;
+
 float effectVolume;
 float lastSample;
 float finalOut;
 
 
-int page{0};
+size_t page{0};
 size_t keyboard_leds[] = {
 	DaisyField::LED_KEY_B1,
 	DaisyField::LED_KEY_B2,
@@ -69,11 +72,19 @@ void Controls()
     // freq = k * k * 7000; //0 - 10 kHz, square curve
     // phaser.SetFeedback(hw.knob[5].Process());
 
-    bandBase = hw.knob[0].Process();
-    bandWidth = hw.knob[1].Process();
+
     wavefolderGain = hw.knob[2].Process();
 
     effectOn ^= hw.sw[0].RisingEdge();
+}
+
+void handleButton(){
+     for (size_t i = 0; i < 16; i++){
+            if(hw.KeyboardRisingEdge(i)){
+                page = i;
+            }
+        }
+        
 }
 
 void AudioCallback(AudioHandle::InputBuffer  in,
@@ -81,7 +92,7 @@ void AudioCallback(AudioHandle::InputBuffer  in,
                    size_t                    size)
 {
     Controls();
-
+    handleButton();
 
 
    
@@ -90,8 +101,8 @@ void AudioCallback(AudioHandle::InputBuffer  in,
         // Set Controls Here
 
         // Soap Controls
-        soap.SetCenterFreq(hw.AudioSampleRate() * pow(bandBase, 2) * 0.15);
-        soap.SetFilterBandwidth(hw.AudioSampleRate() * pow(bandWidth, 2) * 0.15);
+        svf.SetFreq(hw.AudioSampleRate() * pow(svfCutoff, 2) * 0.15);
+        
 
         // Wavefolder Controls        the offset has -0.5 so it can ofset to negative too
         wavefolder.SetGain(wavefolderGain);
@@ -106,13 +117,17 @@ void AudioCallback(AudioHandle::InputBuffer  in,
         // Actual FX code below
         if(effectOn)
         {
+            // SVF for split into Nfilt 
+
 			// pha = phaser.Process(in[0][i]) * wet + in[0][i] * (1.f - wet);
-            bandSplit = soap.Process(in[0][i])
-			overdrive = overdrive.Process(wavefolder.Process(bandSplit));
+           
+            svf.Process(in[0][i]);
+
+			overdriveOut = overdrive.Process(wavefolder.Process(svf.High()));
         
 
             // Final output
-            out[0][i] = out[1][i] = svf.Peak();
+            out[0][i] = out[1][i] = overdriveOut;
 
         }
     }
@@ -123,11 +138,10 @@ int main(void)
     hw.Init();
     float sample_rate = hw.AudioSampleRate();
 
-
-    // Soap Bandpass filer init
-    soap.Init(sample_rate);
-    bandBase = 0.25f;
-    bandWidth = 0.5f;
+    // SVF Init
+    svf.Init(sample_rate);
+    filFreq = 0.2f;
+    filRes = 0.0f;
 
     // Fold init
     fold.Init();
@@ -158,13 +172,9 @@ int main(void)
 
         char cstr[15];
 
-        for (size_t i = 0; i < 16; i++){
-            if(hw.KeyboardRisingEdge(i)){
-                sprintf(cstr, "key %d has been pressed", hw.KeyboardRisingEdge(i));
-                hw.display.SetCursor(0, 10);
-                hw.display.WriteString(cstr, Font_7x10, true);
-            }
-        }
+        sprintf(cstr, "key %d has been pressed", page);
+        hw.display.SetCursor(0, 10);
+        hw.display.WriteString(cstr, Font_6x8, true);
         // sprintf(cstr, "Effect: %s", effectOn ? "On" : "Off");
         // hw.display.SetCursor(0, 0);
         // hw.display.WriteString(cstr, Font_7x10, true);
