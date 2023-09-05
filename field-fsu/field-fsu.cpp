@@ -72,8 +72,10 @@ void Controls()
     // freq = k * k * 7000; //0 - 10 kHz, square curve
     // phaser.SetFeedback(hw.knob[5].Process());
 
+    /// Add pages to the knobs;
 
-    wavefolderGain = hw.knob[2].Process();
+  
+
 
     effectOn ^= hw.sw[0].RisingEdge();
 }
@@ -137,6 +139,7 @@ int main(void)
 {
     hw.Init();
     float sample_rate = hw.AudioSampleRate();
+    page = 0;
 
     // SVF Init
     svf.Init(sample_rate);
@@ -171,10 +174,35 @@ int main(void)
         hw.display.Fill(false);
 
         char cstr[15];
-
-        sprintf(cstr, "key %d has been pressed", page);
+        sprintf(cstr, "Page: %d", page);
+        hw.display.SetCursor(0, 0);
+        hw.display.WriteString(cstr, Font_7x10, true);
+        
+       switch (page){
+        case 0 :
+        sprintf(cstr, "Freq: %d", svfCutoff);
         hw.display.SetCursor(0, 10);
-        hw.display.WriteString(cstr, Font_6x8, true);
+        hw.display.WriteString(cstr, Font_7x10, true);
+        break;
+        case 1:
+        sprintf(cstr, "Fld: %d", wavefolderGain);
+        hw.display.SetCursor(0, 20);
+        hw.display.WriteString(cstr, Font_7x10, true);
+        break;
+       } 
+
+        
+        // if (page = 0){
+        //     sprintf(cstr, "Freq: %d", svfCutoff);
+        //     hw.display.SetCursor(0, 10);
+        //     hw.display.WriteString(cstr, Font_6x8, true);
+
+        // } else if (page = 1){
+        //     sprintf(cstr, "Fld: %d", wavefolderGain);
+        //     hw.display.SetCursor(0, 10);
+        //     hw.display.WriteString(cstr, Font_6x8, true);
+        // }
+        
         // sprintf(cstr, "Effect: %s", effectOn ? "On" : "Off");
         // hw.display.SetCursor(0, 0);
         // hw.display.WriteString(cstr, Font_7x10, true);
