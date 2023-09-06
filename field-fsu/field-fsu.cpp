@@ -37,7 +37,7 @@ float effectVolume;
 float lastSample;
 float finalOut;
 char cstr[15];
-char* displayBuffer; 
+char displayBuffer[15]; 
 
 size_t page{0};
 size_t keyboard_leds[] = {
@@ -226,6 +226,7 @@ int main(void)
        switch (page){
         case 0 :
         drawControl(displayBuffer, "FREQ ",(int)(svfCutoff * 100), 1);
+
         drawText(displayBuffer, "FILTER      ");
         break;
         case 1:
