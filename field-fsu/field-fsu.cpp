@@ -36,7 +36,8 @@ float filRes;
 float effectVolume;
 float lastSample;
 float finalOut;
-
+char cstr[15];
+char* displayBuffer; 
 
 size_t page{0};
 size_t keyboard_leds[] = {
@@ -64,16 +65,6 @@ void Controls()
     // This bit processes knob movement and translates it into float/init values
     hw.ProcessAllControls();
 
-    // wet = hw.knob[0].Process();
-    // numstages = 1 + (hw.knob[1].Process() * 8);
-    // phaser.SetPoles(numstages);
-    // float k = hw.knob[2].Process();
-    // phaser.SetLfoFreq(k * k * 20.f);
-    // lfo  = hw.knob[3].Process();
-    // k    = hw.knob[4].Process();
-    // freq = k * k * 7000; //0 - 10 kHz, square curve
-    // phaser.SetFeedback(hw.knob[5].Process());
-
     /// Add pages to the knobs;
   switch (page){
     case 0:
@@ -84,8 +75,6 @@ void Controls()
     wavefolderGain = hw.knob[0].Process();
     break;
   }
-
-
     effectOn ^= hw.sw[0].RisingEdge();
 }
 
@@ -99,6 +88,45 @@ void handleButton(){
         
 }
 
+void drawLabel(char * buffer, const char* paramName, float paramValue, int position){
+    switch (position){
+        case 1:
+        hw.display.SetCursor(0, 0);
+        break;
+        
+        case 2:
+        hw.display.SetCursor(0 ,10);
+        break;
+
+        case 3:
+        hw.display.SetCursor(0, 20);
+        break;
+
+        case 4:
+        hw.display.SetCursor(0, 30);
+        break;
+
+        case 5:
+        hw.display.SetCursor(70, 0);
+        break;
+
+        case 6:
+        hw.display.SetCursor(70, 10);
+        break;
+
+        case 7:
+        hw.display.SetCursor(70, 20);
+        break;
+
+        case 8:
+        hw.display.SetCursor(70, 30);
+        break;
+    }   
+    sprintf(displayBuffer, "%s:%d", paramName, (int)(paramValue * 101));
+    hw.display.WriteString(displayBuffer, Font_7x10, true);
+
+}
+
 void AudioCallback(AudioHandle::InputBuffer  in,
                    AudioHandle::OutputBuffer out,
                    size_t                    size)
@@ -107,7 +135,7 @@ void AudioCallback(AudioHandle::InputBuffer  in,
     handleButton();
 
 
-   
+    // DSP happenes here
     for(size_t i = 0; i < size; i++)
     {
         // Set Controls Here
@@ -151,6 +179,7 @@ void AudioCallback(AudioHandle::InputBuffer  in,
 
 int main(void)
 {
+    
     hw.Init();
     float sample_rate = hw.AudioSampleRate();
     page = 0;
@@ -189,8 +218,6 @@ int main(void)
         // This bit is responsible for drawing on screen
         
         hw.display.Fill(false);
-
-        char cstr[15];
         sprintf(cstr, "Page: %d", page);
         hw.display.SetCursor(0, 0);
         hw.display.WriteString(cstr, Font_7x10, true);
@@ -200,6 +227,11 @@ int main(void)
         hw.display.SetCursor(0, 30);
         hw.display.WriteString(cstr, Font_7x10, true);
 
+        sprintf(cstr, "Label %d", (int)(69));
+        hw.display.SetCursor(70, 30);
+        hw.display.WriteString(cstr, Font_7x10, true);
+        char const* ca = "Cat";
+        drawLabel(displayBuffer, ca, 0.50f, 5);
         //Handle Menu Pages draw
        switch (page){
         case 0 :
@@ -214,38 +246,6 @@ int main(void)
         break;
        } 
 
-        
-        // if (page = 0){
-        //     sprintf(cstr, "Freq: %d", svfCutoff);
-        //     hw.display.SetCursor(0, 10);
-        //     hw.display.WriteString(cstr, Font_6x8, true);
-
-        // } else if (page = 1){
-        //     sprintf(cstr, "Fld: %d", wavefolderGain);
-        //     hw.display.SetCursor(0, 10);
-        //     hw.display.WriteString(cstr, Font_6x8, true);
-        // }
-        
-        // sprintf(cstr, "Effect: %s", effectOn ? "On" : "Off");
-        // hw.display.SetCursor(0, 0);
-        // hw.display.WriteString(cstr, Font_7x10, true);
-
-        // sprintf(cstr, "Dry/Wet: %d", (int)(wet * 101));
-        // hw.display.SetCursor(0, 20);
-        // hw.display.WriteString(cstr, Font_7x10, true);
-
-        // sprintf(cstr, "Num Poles: %d", numstages);
-        // hw.display.SetCursor(0, 10);
-        // hw.display.WriteString(cstr, Font_7x10, true);
-
-        // sprintf(cstr, "Freq: %d", (int)(filFreq * 101));
-        // hw.display.SetCursor(0, 30);
-        // hw.display.WriteString(cstr, Font_7x10, true);
-        
-        // sprintf(cstr, "Res: %d", (int)(filRes * 101));
-        // hw.display.SetCursor(0, 40);
-        // hw.display.WriteString(cstr, Font_7x10, true);
-        
         hw.display.Update();
     }
 }
