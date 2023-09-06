@@ -221,13 +221,13 @@ int main(void)
     {
         // This bit is responsible for drawing on screen
         
+        hw.display.Fill(false);
         // example of the new function working
         //Handle Menu Pages draw
        switch (page){
         case 0 :
         drawControl(displayBuffer, "FREQ ",(int)(svfCutoff * 100), 1);
-
-        drawText(displayBuffer, "FILTER      ");
+        drawText(displayBuffer, "FILTER");
         break;
         case 1:
         drawControl(displayBuffer, "FOLD ",(int)(wavefolderGain * 100), 1);
