@@ -230,6 +230,8 @@ int main(void)
         sprintf(cstr, "Label %d", (int)(69));
         hw.display.SetCursor(70, 30);
         hw.display.WriteString(cstr, Font_7x10, true);
+       
+        // example of the new function working
         char const* ca = "Cat";
         drawLabel(displayBuffer, ca, 0.50f, 5);
         //Handle Menu Pages draw
