@@ -88,7 +88,7 @@ void handleButton(){
         
 }
 
-void drawLabel(char * buffer, const char* paramName, float paramValue, int position){
+void drawControl(char * buffer, const char* paramName, int paramValue, int position){
     switch (position){
         case 1:
         hw.display.SetCursor(0, 0);
@@ -122,11 +122,15 @@ void drawLabel(char * buffer, const char* paramName, float paramValue, int posit
         hw.display.SetCursor(70, 30);
         break;
     }   
-    sprintf(displayBuffer, "%s:%d", paramName, (int)(paramValue * 101));
+    sprintf(displayBuffer, "%s%d", paramName, paramValue);
     hw.display.WriteString(displayBuffer, Font_7x10, true);
 
 }
-
+void drawText(char * buffer, const char* paramName){
+    hw.display.SetCursor(30, 50);
+    sprintf(displayBuffer, "%s", paramName);
+    hw.display.WriteString(displayBuffer, Font_7x10, true);
+}
 void AudioCallback(AudioHandle::InputBuffer  in,
                    AudioHandle::OutputBuffer out,
                    size_t                    size)
@@ -217,34 +221,16 @@ int main(void)
     {
         // This bit is responsible for drawing on screen
         
-        hw.display.Fill(false);
-        sprintf(cstr, "Page: %d", page);
-        hw.display.SetCursor(0, 0);
-        hw.display.WriteString(cstr, Font_7x10, true);
-        
-        
-        sprintf(cstr, "Freq: %d", (int)(svfCutoff * 101));
-        hw.display.SetCursor(0, 30);
-        hw.display.WriteString(cstr, Font_7x10, true);
-
-        sprintf(cstr, "Label %d", (int)(69));
-        hw.display.SetCursor(70, 30);
-        hw.display.WriteString(cstr, Font_7x10, true);
-       
         // example of the new function working
-        char const* ca = "Cat";
-        drawLabel(displayBuffer, ca, 0.50f, 5);
         //Handle Menu Pages draw
        switch (page){
         case 0 :
-        sprintf(cstr, "Freq: %d", (int)(svfCutoff * 101));
-        hw.display.SetCursor(0, 10);
-        hw.display.WriteString(cstr, Font_7x10, true);
+        drawControl(displayBuffer, "FREQ ",(int)(svfCutoff * 100), 1);
+        drawText(displayBuffer, "FILTER      ");
         break;
         case 1:
-        sprintf(cstr, "Fld: %d", (int)(wavefolderGain * 101));
-        hw.display.SetCursor(0, 20);
-        hw.display.WriteString(cstr, Font_7x10, true);
+        drawControl(displayBuffer, "FOLD ",(int)(wavefolderGain * 100), 1);
+        drawText(displayBuffer, "WAVEFOLDER");
         break;
        } 
 
