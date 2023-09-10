@@ -1,13 +1,12 @@
 # Project Name
-TARGET = field-fsu
+TARGET = MyNewProject
 
 # Sources
-CPP_SOURCES = field-fsu.cpp
+CPP_SOURCES = MyNewProject.cpp
 
 # Library Locations
-LIBDAISY_DIR = ../libDaisy/
-DAISYSP_DIR = ../DaisySP/
-DSPFilters_DIR = ../DSPFilters/
+LIBDAISY_DIR = ../../libDaisy/
+DAISYSP_DIR = ../../DaisySP/
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
